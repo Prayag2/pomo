@@ -1,5 +1,5 @@
 # Simple Pomodoro
-This is a simple bash script that let's runs a pomodoro timer via notifications!
+This is a simple bash script that runs a pomodoro timer via notifications on Linux!
 
 ## Dependencies
 - `notify-send`
