@@ -1,6 +1,10 @@
 # Simple Pomodoro
 This is a simple bash script that runs a pomodoro timer via notifications on Linux!
 
+<center>
+<img src="https://github.com/prayag2/pomo/blob/main/0.png" style="width: 100%;">
+</center>
+
 ## Dependencies
 - `notify-send`
 
