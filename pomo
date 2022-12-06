@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# DEFAULT VALUES
+ICON="clock"
+NAME="Simple Pomodoro"
+
+FOCUS=1500
+BREAK=300
+LONG_BREAK=1200
+ROUNDS=4
+CYCLES=1
+HELP="\nSimple Pomodoro!\nOptions:\n\t-f <focus time in sec>\n\t-b <break time in sec>\n\t-l <long break in sec>\n\t-r <number of sessions before long break>\n\t-c <number of cycles>"
+
+# PARSE OPTIONS
+while getopts "f:b:r:c:l:h" opt; do
+	case $opt in
+		f)
+			FOCUS=$OPTARG ;;
+		b)
+			BREAK=$OPTARG ;;
+		r)
+			ROUNDS=$OPTARG ;;
+		c)
+			CYCLES=$OPTARG ;;
+		l)
+			LONG_BREAK=$OPTARG ;;
+		h|\?)
+			printf "$HELP\n"
+			exit 1 ;;
+	esac
+done
+		
+
+formatTime() {
+	if [[ $2 -eq 1 ]]; then
+		printf '%02d' $(expr $1)
+	else
+		printf '%02d' $(expr $1 - 1)
+	fi
+}
+
+timer() {
+	MIN=$(expr $1 / 60)
+	SEC=$(expr $1 - $MIN \* 60)
+
+	for (( min=$MIN; min>=0; min-- ))
+	do
+		for (( sec=$SEC; sec>0; sec-- ))
+		do
+			notify-send "$2" "Time Remaining: $(formatTime $min 1):$(formatTime $sec) seconds" -r $3 --urgency=low --app-name="$NAME" --icon="$ICON"
+			sleep 1
+		done
+		SEC=60
+	done
+
+}
+
+start() {
+	NOTI=$(notify-send "Pomodoro Session Started!" -p)
+	timer $FOCUS "Cycle $1 • Session $2 • Focus Time!" $NOTI
+
+	if [[ $3 -eq 1 ]]; then
+		notify-send "LONG BREAK TIME!" -r $NOTI
+		timer $LONG_BREAK "Long Break!" $NOTI
+
+	elif [[ $3 -eq 2 ]]; then
+		return;
+
+	else
+		notify-send "BREAK TIME!" -r $NOTI
+		timer $BREAK "Short Break!" $NOTI
+	fi
+		
+}
+
+for (( i=0; i<$CYCLES; i++ ))
+do
+	for (( j=1; j<=$ROUNDS; j++ ))
+	do
+		k=$(expr $i + 1)
+		if [[ j -eq $ROUNDS ]] && [[ i -ne $(expr $CYCLES - 1) ]]; then
+			start $k $j 1
+		elif [[ j -eq $ROUNDS ]] && [[ i -eq $(expr $CYCLES - 1) ]]; then
+			start $k $j 2
+		else
+			start $k $j
+		fi
+	done
+done
