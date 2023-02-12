@@ -6,7 +6,7 @@ This is a simple bash script that runs a pomodoro timer via notifications on Lin
 </center>
 
 ## Dependencies
-- `notify-send`
+- `libnotify` (for `notify-send`)
 
 ## Usage
 ```
