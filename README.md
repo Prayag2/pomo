@@ -17,4 +17,8 @@ Options:
 	-l <long break in sec> (Default is 1200)
 	-r <number of sessions before long break> (Default is 4)
 	-c <number of cycles> (Default is 1)
+	-F <command to run when focus time starts>
+	-B <command to run when short break starts>
+	-L <command to run when long break starts>
+	-E <command to run when program exist>
 ```
