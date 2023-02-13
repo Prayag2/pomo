@@ -20,5 +20,6 @@ Options:
 	-F <command to run when focus time starts>
 	-B <command to run when short break starts>
 	-L <command to run when long break starts>
-	-E <command to run when program exist>
+	-P <command to run when paused>
+	-R <command to run when resumed>
 ```

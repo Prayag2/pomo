@@ -13,7 +13,8 @@ CYCLES=1
 FOCUS_SCRIPT=""
 BREAK_SCRIPT=""
 LBREAK_SCRIPT=""
-EXIT_SCRIPT=""
+PAUSE_SCRIPT=""
+RESUME_SCRIPT=""
 
 HELP="Simple Pomodoro Timer!
 Options:
@@ -25,11 +26,12 @@ Options:
 \t-F <command to run when focus time starts>
 \t-B <command to run when short break starts>
 \t-L <command to run when long break starts>
-\t-E <command to run when program exist>"
+\t-P <command to run when paused>
+\t-R <command to run when resumed>"
 
 
 # PARSE OPTIONS
-while getopts "f:b:r:c:l:F:B:L:E:h" opt; do
+while getopts "f:b:r:c:l:F:B:L:P:R:h" opt; do
 	case $opt in
 		f)
 			FOCUS=$OPTARG ;;
@@ -47,8 +49,10 @@ while getopts "f:b:r:c:l:F:B:L:E:h" opt; do
 			BREAK_SCRIPT=$OPTARG ;;
 		L)
 			LBREAK_SCRIPT=$OPTARG ;;
-		E)
-			EXIT_SCRIPT=$OPTARG ;;
+		P)
+			PAUSE_SCRIPT=$OPTARG ;;
+		R)
+			RESUME_SCRIPT=$OPTARG ;;
 		h|\?)
 			printf "$HELP\n"
 			exit 1 ;;
@@ -73,19 +77,26 @@ timer() {
 		for (( sec=$SEC; sec>0; sec-- ))
 		do
 			BODY="Time Remaining: $(formatTime $min 1):$(formatTime $sec) seconds"
-			OUTPUT=$(timeout 1 notify-send "$2" "$BODY" -r $3 -u low -a "$NAME" -i "$ICON" -A "Pause" -A "Stop" & sleep 1)
+			OUTPUT=$(timeout 1 notify-send "$2" "$BODY" -r $3 -u low -a "$NAME" -i "$ICON" -A "Pause" -A "Stop" -A "Skip" & sleep 1)
 			case $OUTPUT in
 				0)	
-					notify-send "Paused!" "$BODY" -r $3 -u critical -a "$NAME" -i "$ICON" -A "Resume"
+					sh -c "$PAUSE_SCRIPT"
+					while [ 1 ]; do
+						OUT=$(timeout 1 notify-send "Paused!" "$BODY" -r $3 -u critical -a "$NAME" -i "$ICON" -A "Resume" & sleep 1)
+						if [[ $OUT = 0 ]]; then
+							break
+						fi
+					done
+					sh -c "$RESUME_SCRIPT"
 					;;
 				1)
-					quit
-					;;
+					quit ;;
+				2)
+					return ;;
 			esac
 		done
 		SEC=60
 	done
-
 }
 
 start() {
@@ -115,6 +126,7 @@ quit() {
 }
 
 trap quit SIGINT
+
 for (( i=0; i<$CYCLES; i++ ))
 do
 	for (( j=1; j<=$ROUNDS; j++ ))
