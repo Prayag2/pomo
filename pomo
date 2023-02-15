@@ -77,7 +77,7 @@ timer() {
 		for (( sec=$SEC; sec>0; sec-- ))
 		do
 			BODY="Time Remaining: $(formatTime $min 1):$(formatTime $sec) seconds"
-			OUTPUT=$(timeout 1 notify-send "$2" "$BODY" -r $3 -u low -a "$NAME" -i "$ICON" -A "Pause" -A "Stop" -A "Skip" & sleep 1)
+			OUTPUT=$(timeout 1 notify-send "$2" "$BODY" -r $3 -u low -a "$NAME" -i "$ICON" -A "Pause" -A "Stop" -A "Skip" --expire-time 1013 & sleep 1)
 			case $OUTPUT in
 				0)	
 					sh -c "$PAUSE_SCRIPT"
